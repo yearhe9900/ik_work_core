@@ -1,4 +1,5 @@
-﻿using System;
+﻿using ik_word_management.Models.DTO.Output;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Security.Claims;
@@ -14,7 +15,7 @@ namespace ik_word_management.Helper
         /// <param name="userName"></param>
         /// <param name="identity"></param>
         /// <returns></returns>
-        Task<string> GenerateEncodedToken(string userName, ClaimsIdentity identity);
+        Task<ResponseTokenOutputModel> GenerateEncodedToken(string userName, ClaimsIdentity identity, string refreshToken = null);
 
         /// <summary>
         /// 生成身份原型

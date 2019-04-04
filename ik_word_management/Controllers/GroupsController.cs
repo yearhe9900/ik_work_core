@@ -8,6 +8,7 @@ using ik_word_management.Models.Domain;
 using ik_word_management.Models.DTO.Input;
 using ik_word_management.Models.DTO.Output;
 using ik_word_management.Models.Enum;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -86,6 +87,7 @@ namespace ik_word_management.Controllers
         }
 
         [HttpPost("[action]")]
+        [Authorize]
         public IActionResult GetGroup([FromBody]RequestSearchGroupInputModel model)
         {
             Expression<Func<Groups, bool>> expression = o => o.Name != null;

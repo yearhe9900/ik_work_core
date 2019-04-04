@@ -3,6 +3,7 @@ using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
+using ik_word_management.Models.DTO.Output;
 using ik_word_management.Models.JWT;
 using Microsoft.Extensions.Options;
 using static ik_word_management.Constants.Constants.Strings;
@@ -19,7 +20,7 @@ namespace ik_word_management.Helper
             ThrowIfInvalidOptions(_jwtOptions);
         }
 
-        public async Task<string> GenerateEncodedToken(string userName, ClaimsIdentity identity)
+        public async Task<ResponseTokenOutputModel> GenerateEncodedToken(string userName, ClaimsIdentity identity, string refreshToken = null)
         {
             var claims = new[]
          {
@@ -40,7 +41,14 @@ namespace ik_word_management.Helper
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
 
-            return encodedJwt;
+            var responese = new ResponseTokenOutputModel
+            {
+                AuthToken = encodedJwt,
+                ExpiresIn = (int)_jwtOptions.ValidFor.TotalSeconds,
+                RefreshToken = refreshToken
+            };
+
+            return responese;
         }
 
         public ClaimsIdentity GenerateClaimsIdentity(string userName, string id)

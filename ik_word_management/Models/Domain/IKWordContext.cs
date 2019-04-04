@@ -16,6 +16,7 @@ namespace ik_word_management.Models.Domain
         }
 
         public virtual DbSet<Groups> Groups { get; set; }
+        public virtual DbSet<Refresh> Refresh { get; set; }
         public virtual DbSet<UserAccount> UserAccount { get; set; }
         public virtual DbSet<Words> Words { get; set; }
 
@@ -23,7 +24,7 @@ namespace ik_word_management.Models.Domain
         {
             if (!optionsBuilder.IsConfigured)
             {
-                optionsBuilder.UseSqlServer("Server=192.168.1.133;database=IKWord;User ID=ehdb;Password=eh123456");
+                optionsBuilder.UseSqlServer("Server=(localdb)\\ProjectsV13;database=IKWord;");
             }
         }
 
@@ -48,6 +49,17 @@ namespace ik_word_management.Models.Domain
                 entity.Property(e => e.Udt)
                     .HasColumnName("UDT")
                     .HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Refresh>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("ID")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.AccountId).HasColumnName("AccountID");
+
+                entity.Property(e => e.ExpiresIn).HasColumnType("datetime");
             });
 
             modelBuilder.Entity<UserAccount>(entity =>

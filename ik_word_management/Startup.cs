@@ -6,6 +6,8 @@ using System.Threading.Tasks;
 using ik_word_management.Helper;
 using ik_word_management.Models.Domain;
 using ik_word_management.Models.JWT;
+using ik_word_management.Services.IService;
+using ik_word_management.Services.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -52,6 +54,7 @@ namespace ik_word_management
               );
 
             services.AddSingleton<IJwtFactory, JwtFactory>();
+            services.AddSingleton<IRefreshService, RefreshService>();
 
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             var issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
@@ -80,12 +83,10 @@ namespace ik_word_management
                 configureOption.SaveToken = true;
             });
 
-
-
             services.Configure<JwtIssuerOptions>(options =>
             {
-                options.Issuer =
-                options.Audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
+                options.Issuer = issuer;
+                options.Audience = audience;
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
         }
