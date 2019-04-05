@@ -11,32 +11,27 @@ using ik_word_management.Models.JWT;
 using ik_word_management.Services.IService;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Options;
 
 namespace ik_word_management.Controllers
 {
     [Route("api/Auth/")]
     public class AuthController : Controller
     {
-        private readonly IJwtFactory _jwtFactory;
-        private readonly IRefreshService _refreshService;
+        private readonly IJwtFactory _jwtFactory = null;
+        private readonly IRefreshService _refreshService = null;
+        private readonly IUserAccountService _userAccountServicee = null;
 
-        private readonly JwtIssuerOptions _jwtIssuerOptions;
-        private IKWordContext _iKWordContext = null;
-
-        public AuthController(IJwtFactory jwtFactory, IOptions<JwtIssuerOptions> options, IKWordContext iKWordContext, IRefreshService refreshService)
+        public AuthController(IJwtFactory jwtFactory, IRefreshService refreshService, IUserAccountService userAccountService)
         {
             _jwtFactory = jwtFactory;
-            _jwtIssuerOptions = options.Value;
-            _iKWordContext = iKWordContext;
             _refreshService = refreshService;
+            _userAccountServicee = userAccountService;
         }
 
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromBody]RequsetLoginInputModel model)
         {
-            var user = _iKWordContext.UserAccount.Where(o => o.Name == model.Name && o.Password == model.Password && o.Enable == (int)EnableEnum.Enable).FirstOrDefault();
+            var user = _userAccountServicee.GetUserAccountByLoginInfo(model.Name, model.Password);
             if (user == null)
             {
                 return BadRequest(new ResponseResultBaseModel()
@@ -45,10 +40,20 @@ namespace ik_word_management.Controllers
                     Msg = "用户名或密码错误"
                 });
             }
+            var newRefreshToken = Guid.NewGuid();
             var claimsIdentity = _jwtFactory.GenerateClaimsIdentity(user.Name, user.Id.ToString());
-            var token = await _jwtFactory.GenerateEncodedToken(user.Name, claimsIdentity);
+            var token = await _jwtFactory.GenerateEncodedToken(user.Name, claimsIdentity, newRefreshToken.ToString());
 
-            _refreshService.AddRefresh(user.Id, token.ExpiresIn);
+            var refresh = _refreshService.GetRefreshByUserAccountID(user.Id);
+
+            if (refresh == null)
+            {
+                _refreshService.AddRefresh(user.Id, token.ExpiresIn, newRefreshToken);
+            }
+            else
+            {
+                _refreshService.UpdateRefresh(refresh.Id, newRefreshToken, token.ExpiresIn);
+            }
 
             return new OkObjectResult(new ResponseResultBaseModel()
             {
@@ -64,9 +69,11 @@ namespace ik_word_management.Controllers
             });
         }
 
+        [HttpPost("[action]")]
         public async Task<IActionResult> RefreshToken([FromBody]RequestRefreshTokenInputModel model)
         {
-            var result = _iKWordContext.Refresh.Where(o => o.RefreshToken == model.RefreshToken && o.ExpiresIn >= DateTime.Now).FirstOrDefault();
+
+            var result = _refreshService.GetRefreshByRefreshToken(model.RefreshToken);
             if (result == null)
             {
                 return BadRequest(new ResponseResultBaseModel()
@@ -75,17 +82,10 @@ namespace ik_word_management.Controllers
                     Msg = "RefreshToken错误"
                 });
             }
-            if (result.Id == model.AccountID)
-            {
-                return BadRequest(new ResponseResultBaseModel()
-                {
-                    Code = (int)CodeEnum.Fail,
-                    Msg = "RefreshToken错误"
-                });
-            }
-            var name = _iKWordContext.UserAccount.Where(o => o.Id == model.AccountID).Select(p => p.Name).FirstOrDefault();
+
+            var name = _userAccountServicee.GetUserAccountByID(result.AccountId.Value)?.Name;
             var newRefreshToken = Guid.NewGuid();
-            var claimsIdentity = _jwtFactory.GenerateClaimsIdentity(name, model.AccountID.ToString());
+            var claimsIdentity = _jwtFactory.GenerateClaimsIdentity(name, result.AccountId.Value.ToString());
             var token = await _jwtFactory.GenerateEncodedToken(name, claimsIdentity, newRefreshToken.ToString());
 
             _refreshService.UpdateRefresh(result.Id, newRefreshToken, token.ExpiresIn);
@@ -103,5 +103,6 @@ namespace ik_word_management.Controllers
                 }
             });
         }
+
     }
 }

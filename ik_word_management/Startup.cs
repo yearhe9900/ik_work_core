@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Autofac;
+using Autofac.Extensions.DependencyInjection;
 using ik_word_management.Helper;
 using ik_word_management.Models.Domain;
 using ik_word_management.Models.JWT;
@@ -25,6 +27,8 @@ namespace ik_word_management
         private const string SecretKey = "frQ8VeXeM5e12D6YU3hzKU0KXRHWXvOl";
         private readonly SymmetricSecurityKey _signingKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(SecretKey));
 
+        public IContainer ApplicationContainer { get; private set; }
+
         public Startup(IConfiguration configuration)
         {
             Configuration = configuration;
@@ -33,9 +37,15 @@ namespace ik_word_management
         public IConfiguration Configuration { get; }
 
         // This method gets called by the runtime. Use this method to add services to the container.
-        public void ConfigureServices(IServiceCollection services)
+        public IServiceProvider ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+
+            var containerBuilder = new ContainerBuilder();
+
+            containerBuilder.RegisterType<JwtFactory>().As<IJwtFactory>();
+            containerBuilder.RegisterType<RefreshService>().As<IRefreshService>();
+            containerBuilder.RegisterType<UserAccountService>().As<IUserAccountService>();
 
             services.AddEntityFrameworkSqlServer()
                 .AddDbContext<IKWordContext>(options =>
@@ -52,9 +62,6 @@ namespace ik_word_management
                 .AllowCredentials()
                 )
               );
-
-            services.AddSingleton<IJwtFactory, JwtFactory>();
-            services.AddSingleton<IRefreshService, RefreshService>();
 
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             var issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
@@ -89,6 +96,11 @@ namespace ik_word_management
                 options.Audience = audience;
                 options.SigningCredentials = new SigningCredentials(_signingKey, SecurityAlgorithms.HmacSha256);
             });
+
+            containerBuilder.Populate(services);
+            this.ApplicationContainer = containerBuilder.Build();
+
+            return new AutofacServiceProvider(this.ApplicationContainer);
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
