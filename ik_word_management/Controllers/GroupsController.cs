@@ -8,6 +8,7 @@ using ik_word_management.Models.Domain;
 using ik_word_management.Models.DTO.Input;
 using ik_word_management.Models.DTO.Output;
 using ik_word_management.Models.Enum;
+using ik_word_management.Services.IService;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -17,29 +18,22 @@ namespace ik_word_management.Controllers
 {
     [Produces("application/json")]
     [Route("api/Groups")]
+    [Authorize]
     public class GroupsController : Controller
     {
         private IKWordContext _iKWordContext = null;
+        private IGroupService _groupService = null;
 
-        public GroupsController(IKWordContext iKWordContext)
+        public GroupsController(IKWordContext iKWordContext, IGroupService groupService)
         {
             _iKWordContext = iKWordContext;
+            _groupService = groupService;
         }
 
         [HttpPost("[action]")]
         public IActionResult AddGroup([FromBody]RequestGroupInputModel model)
         {
-            Groups groups = new Groups()
-            {
-                Id = Guid.NewGuid(),
-                Cdt = DateTime.Now,
-                Enable = (int)EnableEnum.Enable,
-                Udt = DateTime.Now,
-                Name = model.Name
-            };
-            _iKWordContext.Entry(groups).State = EntityState.Added;
-
-            var result = _iKWordContext.SaveChanges();
+            var result = _groupService.AddOneGroup(model.Name);
 
             return new OkObjectResult(new ResponseResultBaseModel
             {
@@ -51,14 +45,7 @@ namespace ik_word_management.Controllers
         [HttpPost("[action]")]
         public IActionResult UpdateGroup([FromBody]RequestGroupInputModel model)
         {
-            var groups = _iKWordContext.Set<Groups>().Single(o => o.Id == model.Id);
-            groups.Name = model.Name;
-            groups.Udt = DateTime.Now;
-            _iKWordContext.Set<Groups>().Attach(groups);
-            _iKWordContext.Entry(groups).Property(a => a.Name).IsModified = true; //将EF对Name的管理状态设置为是一个更新
-            _iKWordContext.Entry(groups).Property(a => a.Udt).IsModified = true; //将EF对UDT的管理状态设置为是一个更新
-
-            var result = _iKWordContext.SaveChanges();
+            var result = _groupService.UpdateOneGroup(model.Id, model.Name);
 
             return new OkObjectResult(new ResponseResultBaseModel
             {
@@ -70,14 +57,7 @@ namespace ik_word_management.Controllers
         [HttpPost("[action]")]
         public IActionResult DelGroup([FromBody]RequestGroupInputModel model)
         {
-            var groups = _iKWordContext.Set<Groups>().Single(o => o.Id == model.Id);
-            var isEnable = groups.Enable == (int)EnableEnum.Enable;
-            groups.Enable = isEnable ? (int)EnableEnum.Disable : (int)EnableEnum.Enable;
-            groups.Udt = DateTime.Now;
-            _iKWordContext.Set<Groups>().Attach(groups);
-            _iKWordContext.Entry(groups).Property(a => a.Enable).IsModified = true; //将EF对Enable的管理状态设置为是一个更新
-            _iKWordContext.Entry(groups).Property(a => a.Udt).IsModified = true; //将EF对UDT的管理状态设置为是一个更新
-            var result = _iKWordContext.SaveChanges();
+            var (result, isEnable) = _groupService.DelOneGroup(model.Id);
 
             return new OkObjectResult(new ResponseResultBaseModel
             {
@@ -87,7 +67,6 @@ namespace ik_word_management.Controllers
         }
 
         [HttpPost("[action]")]
-        [Authorize]
         public IActionResult GetGroup([FromBody]RequestSearchGroupInputModel model)
         {
             Expression<Func<Groups, bool>> expression = o => o.Name != null;
