@@ -69,30 +69,7 @@ namespace ik_word_management.Controllers
         [HttpPost("[action]")]
         public IActionResult GetGroup([FromBody]RequestSearchGroupInputModel model)
         {
-            Expression<Func<Groups, bool>> expression = o => o.Name != null;
-            if (!string.IsNullOrWhiteSpace(model.Name))
-            {
-                Expression<Func<Groups, bool>> expressionName = o => o.Name.Contains(model.Name);
-                expression = expression.And(expressionName);
-            }
-            if (model.StartCDT != null && model.EndCDT != null)
-            {
-                Expression<Func<Groups, bool>> expressionCDT = o => o.Cdt >= model.StartCDT.Value && o.Cdt < model.EndCDT.Value.AddDays(1);
-                expression = expression.And(expressionCDT);
-            }
-            if (model.StartUDT != null && model.EndUDT != null)
-            {
-                Expression<Func<Groups, bool>> expressionUDT = o => o.Udt >= model.StartUDT.Value && o.Cdt < model.EndUDT.Value.AddDays(1);
-                expression = expression.And(expressionUDT);
-            }
-            if (model.Enable != 0)
-            {
-                Expression<Func<Groups, bool>> expressionEnable = o => o.Enable == model.Enable;
-                expression = expression.And(expressionEnable);
-            }
-
-            var result = _iKWordContext.Groups.Where(expression).Skip((model.PageNo - 1) * model.PageSize).Take(model.PageSize).ToList();
-
+            var result = _groupService.GetGroups(model);
             return new OkObjectResult(new ResponseResultBaseModel
             {
                 Code = (int)CodeEnum.Success,

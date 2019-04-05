@@ -1,10 +1,13 @@
-﻿using ik_word_management.Models.Domain;
+﻿using ik_word_management.Helper;
+using ik_word_management.Models.Domain;
+using ik_word_management.Models.DTO.Input;
 using ik_word_management.Models.Enum;
 using ik_word_management.Services.IService;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Threading.Tasks;
 
 namespace ik_word_management.Services.Service
@@ -61,6 +64,36 @@ namespace ik_word_management.Services.Service
             var result = _iKWordContext.SaveChanges();
 
             return (result, isEnable);
+        }
+
+        public List<Groups> GetGroups(RequestSearchGroupInputModel model)
+        {
+            Expression<Func<Groups, bool>> expression = o => o.Name != null;
+            if (!string.IsNullOrWhiteSpace(model.Name))
+            {
+                Expression<Func<Groups, bool>> expressionName = o => o.Name.Contains(model.Name);
+                expression = expression.And(expressionName);
+            }
+            if (model.StartCDT != null && model.EndCDT != null)
+            {
+                Expression<Func<Groups, bool>> expressionCDT = o => o.Cdt >= model.StartCDT.Value && o.Cdt < model.EndCDT.Value.AddDays(1);
+                expression = expression.And(expressionCDT);
+            }
+            if (model.StartUDT != null && model.EndUDT != null)
+            {
+                Expression<Func<Groups, bool>> expressionUDT = o => o.Udt >= model.StartUDT.Value && o.Cdt < model.EndUDT.Value.AddDays(1);
+                expression = expression.And(expressionUDT);
+            }
+            if (model.Enable != 0)
+            {
+                Expression<Func<Groups, bool>> expressionEnable = o => o.Enable == model.Enable;
+                expression = expression.And(expressionEnable);
+            }
+
+            var result = _iKWordContext.Groups.Where(expression).Skip((model.PageNo - 1) * model.PageSize).Take(model.PageSize).ToList();
+
+            return result;
+
         }
     }
 }
