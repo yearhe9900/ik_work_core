@@ -47,7 +47,8 @@ namespace ik_word_management
             containerBuilder.RegisterType<RefreshService>().As<IRefreshService>();
             containerBuilder.RegisterType<UserAccountService>().As<IUserAccountService>();
             containerBuilder.RegisterType<GroupService>().As<IGroupService>();
-            
+            containerBuilder.RegisterType<WordService>().As<IWordService>();
+
             services.AddEntityFrameworkSqlServer()
                 .AddDbContext<IKWordContext>(options =>
                 {

@@ -7,5 +7,6 @@ namespace ik_word_management.Services.IService
 {
     public interface IWordService
     {
+        int AddOneWord(string name, Guid groupId);
     }
 }
