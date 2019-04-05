@@ -24,6 +24,7 @@ namespace ik_word_management.Models.Domain
         {
             if (!optionsBuilder.IsConfigured)
             {
+#warning To protect potentially sensitive information in your connection string, you should move it out of source code. See http://go.microsoft.com/fwlink/?LinkId=723263 for guidance on storing connection strings.
                 optionsBuilder.UseSqlServer("Server=(localdb)\\ProjectsV13;database=IKWord;");
             }
         }
@@ -91,10 +92,7 @@ namespace ik_word_management.Models.Domain
 
                 entity.Property(e => e.Enable).HasDefaultValueSql("((1))");
 
-                entity.Property(e => e.GroupId)
-                    .IsRequired()
-                    .HasColumnName("GroupID")
-                    .HasMaxLength(50);
+                entity.Property(e => e.GroupId).HasColumnName("GroupID");
 
                 entity.Property(e => e.Name).HasMaxLength(50);
 

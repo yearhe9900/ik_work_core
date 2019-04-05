@@ -1,0 +1,1 @@
+﻿Scaffold-DbContext "Server=(localdb)\ProjectsV13;database=IKWord;" Microsoft.EntityFrameworkCore.SqlServer -OutputDir Models/Domain
