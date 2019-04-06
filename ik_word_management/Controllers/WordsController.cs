@@ -35,5 +35,29 @@ namespace ik_word_management.Controllers
                 Msg = result > 0 ? "添加成功" : "添加失败"
             });
         }
+
+        [HttpPost("[action]")]
+        public IActionResult UpdateWord([FromBody]RequestWordInputModel model)
+        {
+            var result = _wordService.UpdateOneWord(model.Id, model.Name, model.GroupID);
+
+            return new OkObjectResult(new ResponseResultBaseModel
+            {
+                Code = result > 0 ? (int)CodeEnum.Success : (int)CodeEnum.Fail,
+                Msg = result > 0 ? "修改成功" : "修改失败"
+            });
+        }
+
+        [HttpPost("[action]")]
+        public IActionResult DelWord([FromBody]RequestWordInputModel model)
+        {
+            var (result, isEnable) = _wordService.DelOneWord(model.Id);
+
+            return new OkObjectResult(new ResponseResultBaseModel
+            {
+                Code = result > 0 ? (int)CodeEnum.Success : (int)CodeEnum.Fail,
+                Msg = result > 0 ? isEnable ? "禁用成功" : "启用成功" : isEnable ? "禁用失败" : "启用失败"
+            });
+        }
     }
 }

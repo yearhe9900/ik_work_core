@@ -93,7 +93,6 @@ namespace ik_word_management.Services.Service
             var result = _iKWordContext.Groups.Where(expression).Skip((model.PageNo - 1) * model.PageSize).Take(model.PageSize).ToList();
 
             return result;
-
         }
     }
 }
