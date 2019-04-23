@@ -3,11 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ik_word_management.Models.Enum
+namespace ik_word_management.Models.Options
 {
-    public enum EnableEnum
+    public class ETagOptions
     {
-        Enable = 1,
-        Disable = 2
+        public string Version { get; set; }
     }
 }

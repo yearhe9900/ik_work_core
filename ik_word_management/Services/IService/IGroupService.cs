@@ -9,12 +9,16 @@ namespace ik_word_management.Services.IService
 {
     public interface IGroupService
     {
+        Groups GetOneGroupById(Guid Id);
+
+        List<Groups> GetGroupsByName(string groupName);
+
         int AddOneGroup(string name);
 
         int UpdateOneGroup(Guid id, string name);
 
         (int result, bool isEnable) DelOneGroup(Guid id);
 
-        List<Groups> GetGroups(RequestSearchGroupInputModel model);
+        (List<Groups> groups, int total) GetGroups(RequestSearchGroupInputModel model);
     }
 }

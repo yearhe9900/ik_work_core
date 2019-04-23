@@ -38,7 +38,7 @@ namespace ik_word_management.Controllers
             return new OkObjectResult(new ResponseResultBaseModel
             {
                 Code = result > 0 ? (int)CodeEnum.Success : (int)CodeEnum.Fail,
-                Msg = result > 0 ? "添加成功" : "添加失败"
+                Message = result > 0 ? "添加成功" : "添加失败"
             });
         }
 
@@ -50,38 +50,42 @@ namespace ik_word_management.Controllers
             return new OkObjectResult(new ResponseResultBaseModel
             {
                 Code = result > 0 ? (int)CodeEnum.Success : (int)CodeEnum.Fail,
-                Msg = result > 0 ? "修改成功" : "修改失败"
+                Message = result > 0 ? "修改成功" : "修改失败"
             });
         }
 
         [HttpPost("[action]")]
-        public IActionResult DelGroup([FromBody]RequestGroupInputModel model)
+        public IActionResult ModifyGroupStatus([FromBody]RequestGroupInputModel model)
         {
             var (result, isEnable) = _groupService.DelOneGroup(model.Id);
 
             return new OkObjectResult(new ResponseResultBaseModel
             {
                 Code = result > 0 ? (int)CodeEnum.Success : (int)CodeEnum.Fail,
-                Msg = result > 0 ? isEnable ? "禁用成功" : "启用成功" : isEnable ? "禁用失败" : "启用失败"
+                Message = result > 0 ? isEnable ? "禁用成功" : "启用成功" : isEnable ? "禁用失败" : "启用失败"
             });
         }
 
         [HttpPost("[action]")]
         public IActionResult GetGroup([FromBody]RequestSearchGroupInputModel model)
         {
-            var result = _groupService.GetGroups(model);
+            var (result,total) = _groupService.GetGroups(model);
             return new OkObjectResult(new ResponseResultBaseModel
             {
                 Code = (int)CodeEnum.Success,
-                Msg = "查询成功",
-                Content = result
+                Message = "查询成功",
+                Content = new
+                {
+                    result,
+                    total
+                }
             });
         }
 
         [HttpPost("[action]")]
-        public IActionResult GetEnableGroup()
+        public IActionResult GetEnableGroupByName([FromBody]RequestSearchGroupInputModel model)
         {
-            var result = _iKWordContext.Groups.Where(o => o.Enable == (int)EnableEnum.Enable).Select(p => new
+            var result = _groupService.GetGroupsByName(model.Name).Select(p => new
             {
                 p.Id,
                 p.Name
@@ -90,7 +94,7 @@ namespace ik_word_management.Controllers
             return new OkObjectResult(new ResponseResultBaseModel
             {
                 Code = (int)CodeEnum.Success,
-                Msg = "查询成功",
+                Message = "查询成功",
                 Content = result
             });
         }

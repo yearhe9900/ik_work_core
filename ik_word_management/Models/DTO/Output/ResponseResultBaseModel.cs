@@ -9,7 +9,7 @@ namespace ik_word_management.Models.DTO.Output
     {
         public int Code { get; set; }
 
-        public string Msg { get; set; }
+        public string Message { get; set; }
 
         public object Content { get; set; }
     }

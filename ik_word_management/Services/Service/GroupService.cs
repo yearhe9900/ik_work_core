@@ -22,6 +22,11 @@ namespace ik_word_management.Services.Service
             _iKWordContext = iKWordContext;
         }
 
+        public Groups GetOneGroupById(Guid Id)
+        {
+            return _iKWordContext.Groups.Where(o => o.Id == Id).FirstOrDefault();
+        }
+
         public int AddOneGroup(string name)
         {
             Groups groups = new Groups()
@@ -66,7 +71,19 @@ namespace ik_word_management.Services.Service
             return (result, isEnable);
         }
 
-        public List<Groups> GetGroups(RequestSearchGroupInputModel model)
+        public List<Groups> GetGroupsByName(string groupName)
+        {
+            Expression<Func<Groups, bool>> expression = o => o.Name.Contains(groupName);
+
+            Expression<Func<Groups, bool>> expressionEnable = o => o.Enable == (int)EnableEnum.Enable;
+            expression = expression.And(expressionEnable);
+
+            var result = _iKWordContext.Groups.Where(expression).ToList();
+
+            return result;
+        }
+
+        public (List<Groups> groups, int total) GetGroups(RequestSearchGroupInputModel model)
         {
             Expression<Func<Groups, bool>> expression = o => o.Name != null;
             if (!string.IsNullOrWhiteSpace(model.Name))
@@ -74,14 +91,14 @@ namespace ik_word_management.Services.Service
                 Expression<Func<Groups, bool>> expressionName = o => o.Name.Contains(model.Name);
                 expression = expression.And(expressionName);
             }
-            if (model.StartCDT != null && model.EndCDT != null)
+            if (model.CDT != null && model.CDT.Count() > 0)
             {
-                Expression<Func<Groups, bool>> expressionCDT = o => o.Cdt >= model.StartCDT.Value && o.Cdt < model.EndCDT.Value.AddDays(1);
+                Expression<Func<Groups, bool>> expressionCDT = o => o.Cdt >= model.CDT[0].Value.ToLocalTime() && o.Cdt < model.CDT[1].Value.ToLocalTime().AddDays(1);
                 expression = expression.And(expressionCDT);
             }
-            if (model.StartUDT != null && model.EndUDT != null)
+            if (model.UDT != null && model.UDT.Count() > 0)
             {
-                Expression<Func<Groups, bool>> expressionUDT = o => o.Udt >= model.StartUDT.Value && o.Cdt < model.EndUDT.Value.AddDays(1);
+                Expression<Func<Groups, bool>> expressionUDT = o => o.Udt >= model.UDT[0].Value.ToLocalTime() && o.Cdt < model.UDT[1].Value.ToLocalTime().AddDays(1);
                 expression = expression.And(expressionUDT);
             }
             if (model.Enable != 0)
@@ -90,9 +107,11 @@ namespace ik_word_management.Services.Service
                 expression = expression.And(expressionEnable);
             }
 
-            var result = _iKWordContext.Groups.Where(expression).Skip((model.PageNo - 1) * model.PageSize).Take(model.PageSize).ToList();
+            var result = _iKWordContext.Groups.Where(expression).OrderByDescending(p => p.Udt).Skip((model.PageNo - 1) * model.PageSize).Take(model.PageSize).ToList();
 
-            return result;
+            var total = _iKWordContext.Groups.Where(expression).Count();
+
+            return (result, total);
         }
     }
 }

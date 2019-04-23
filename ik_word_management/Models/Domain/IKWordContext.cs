@@ -16,6 +16,7 @@ namespace ik_word_management.Models.Domain
         }
 
         public virtual DbSet<Groups> Groups { get; set; }
+        public virtual DbSet<Modified> Modified { get; set; }
         public virtual DbSet<Refresh> Refresh { get; set; }
         public virtual DbSet<UserAccount> UserAccount { get; set; }
         public virtual DbSet<Words> Words { get; set; }
@@ -50,6 +51,21 @@ namespace ik_word_management.Models.Domain
                 entity.Property(e => e.Udt)
                     .HasColumnName("UDT")
                     .HasColumnType("datetime");
+            });
+
+            modelBuilder.Entity<Modified>(entity =>
+            {
+                entity.Property(e => e.Id)
+                    .HasColumnName("ID")
+                    .ValueGeneratedNever();
+
+                entity.Property(e => e.Cdt)
+                    .HasColumnName("CDT")
+                    .HasColumnType("datetime");
+
+                entity.Property(e => e.Etag)
+                    .HasColumnName("ETag")
+                    .HasMaxLength(50);
             });
 
             modelBuilder.Entity<Refresh>(entity =>

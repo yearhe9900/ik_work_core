@@ -4,9 +4,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
-namespace ik_word_management.Models.DTO.Input
+namespace ik_word_management.Models.DTO.Output
 {
-    public class RequestWordInputModel : Words
+    public class ResponseWordOutputModel : Words
     {
+        public string GroupName { get; set; }
     }
 }

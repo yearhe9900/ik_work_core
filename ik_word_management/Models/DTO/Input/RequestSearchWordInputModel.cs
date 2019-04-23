@@ -5,8 +5,8 @@ using System.Threading.Tasks;
 
 namespace ik_word_management.Models.DTO.Input
 {
-    public class RequestSearchGroupInputModel: RequestSearchBaseInputModel
+    public class RequestSearchWordInputModel : RequestSearchBaseInputModel
     {
-
+        public string GroupName { get; set; }
     }
 }

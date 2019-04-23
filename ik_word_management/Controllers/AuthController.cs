@@ -1,16 +1,11 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-using ik_word_management.Helper;
-using ik_word_management.Models.Domain;
+﻿using ik_word_management.Helper;
 using ik_word_management.Models.DTO.Input;
 using ik_word_management.Models.DTO.Output;
 using ik_word_management.Models.Enum;
-using ik_word_management.Models.JWT;
 using ik_word_management.Services.IService;
-using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using System;
+using System.Threading.Tasks;
 
 namespace ik_word_management.Controllers
 {
@@ -31,13 +26,13 @@ namespace ik_word_management.Controllers
         [HttpPost("[action]")]
         public async Task<IActionResult> Login([FromBody]RequsetLoginInputModel model)
         {
-            var user = _userAccountServicee.GetUserAccountByLoginInfo(model.Name, model.Password);
+            var user = _userAccountServicee.GetUserAccountByLoginInfo(model.UserName, model.Password);
             if (user == null)
             {
-                return BadRequest(new ResponseResultBaseModel()
+                return new OkObjectResult(new ResponseResultBaseModel()
                 {
                     Code = (int)CodeEnum.Fail,
-                    Msg = "用户名或密码错误"
+                    Message = "用户名或密码错误"
                 });
             }
             var newRefreshToken = Guid.NewGuid();
@@ -57,12 +52,12 @@ namespace ik_word_management.Controllers
 
             return new OkObjectResult(new ResponseResultBaseModel()
             {
-                Code = (int)CodeEnum.Success,
-                Msg = "登录成功",
+                Code = (int)CodeEnum.LoginSuccess,
+                Message = "登录成功",
                 Content = new
                 {
                     auth_token = token.AuthToken,
-                    expires_in = token.ExpiresIn,
+                    expires_in = DateTime.Now.AddSeconds(token.ExpiresIn),
                     token_type = token.TokenType,
                     refresh_token = token.RefreshToken
                 }
@@ -79,7 +74,7 @@ namespace ik_word_management.Controllers
                 return BadRequest(new ResponseResultBaseModel()
                 {
                     Code = (int)CodeEnum.Fail,
-                    Msg = "RefreshToken错误"
+                    Message = "RefreshToken错误"
                 });
             }
 
@@ -93,7 +88,7 @@ namespace ik_word_management.Controllers
             return new OkObjectResult(new ResponseResultBaseModel()
             {
                 Code = (int)CodeEnum.Success,
-                Msg = "刷新成功",
+                Message = "刷新成功",
                 Content = new
                 {
                     auth_token = token.AuthToken,

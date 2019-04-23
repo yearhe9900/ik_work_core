@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Security.Principal;
 using System.Threading.Tasks;
 using ik_word_management.Models.DTO.Output;
-using ik_word_management.Models.JWT;
+using ik_word_management.Models.Options;
 using Microsoft.Extensions.Options;
 using static ik_word_management.Constants.Constants.Strings;
 

@@ -7,7 +7,7 @@ using Autofac;
 using Autofac.Extensions.DependencyInjection;
 using ik_word_management.Helper;
 using ik_word_management.Models.Domain;
-using ik_word_management.Models.JWT;
+using ik_word_management.Models.Options;
 using ik_word_management.Services.IService;
 using ik_word_management.Services.Service;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -48,6 +48,7 @@ namespace ik_word_management
             containerBuilder.RegisterType<UserAccountService>().As<IUserAccountService>();
             containerBuilder.RegisterType<GroupService>().As<IGroupService>();
             containerBuilder.RegisterType<WordService>().As<IWordService>();
+            containerBuilder.RegisterType<ModifiedService>().As<IModifiedService>();
 
             services.AddEntityFrameworkSqlServer()
                 .AddDbContext<IKWordContext>(options =>
@@ -65,6 +66,8 @@ namespace ik_word_management
                 )
               );
 
+            services.Configure<ETagOptions>(Configuration.GetSection(nameof(ETagOptions)));
+
             var jwtAppSettingOptions = Configuration.GetSection(nameof(JwtIssuerOptions));
             var issuer = jwtAppSettingOptions[nameof(JwtIssuerOptions.Issuer)];
             var audience = jwtAppSettingOptions[nameof(JwtIssuerOptions.Audience)];
@@ -75,7 +78,6 @@ namespace ik_word_management
                 option.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
             }).AddJwtBearer((configureOption) =>
             {
-
                 configureOption.ClaimsIssuer = issuer;
                 configureOption.TokenValidationParameters = new TokenValidationParameters
                 {
@@ -100,7 +102,7 @@ namespace ik_word_management
             });
 
             containerBuilder.Populate(services);
-            this.ApplicationContainer = containerBuilder.Build();
+            ApplicationContainer = containerBuilder.Build();
 
             return new AutofacServiceProvider(this.ApplicationContainer);
         }
