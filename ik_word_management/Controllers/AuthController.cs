@@ -31,7 +31,7 @@ namespace ik_word_management.Controllers
             {
                 return new OkObjectResult(new ResponseResultBaseModel()
                 {
-                    Code = (int)CodeEnum.Fail,
+                    Code = (int)CodeEnum.LoginFail,
                     Message = "用户名或密码错误"
                 });
             }

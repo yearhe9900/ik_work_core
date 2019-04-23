@@ -11,11 +11,22 @@ namespace ik_word_management.Models.Enum
         /// 成功
         /// </summary>
         Success = 200,
+
         /// <summary>
         /// 登录成功
         /// </summary>
-        LoginSuccess = 20000,
-        Fail = 2000,
+        LoginSuccess = 201,
+
+        /// <summary>
+        /// 失败
+        /// </summary>
+        Fail = 600,
+
+        /// <summary>
+        /// 登录失败
+        /// </summary>
+        LoginFail = 601,
+      
         Error = 3000
     }
 }
