@@ -25,7 +25,7 @@
       "applicationUrl": "http://localhost:23639/"
     },
     "Docker": {
-      "commandName": "Docker",
+      "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "{Scheme}://{ServiceHost}:{ServicePort}/api/values"
     }

@@ -83,7 +83,7 @@ namespace ik_word_management
                 {
                     ValidateIssuer = true,
                     ValidIssuer = issuer,
-                    ValidateAudience = true,
+                    ValidateAudience = false,
                     ValidAudience = audience,
                     ValidateIssuerSigningKey = true,
                     IssuerSigningKey = _signingKey,

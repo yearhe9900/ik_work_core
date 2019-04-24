@@ -20,7 +20,7 @@ namespace ik_word_management
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-             .UseUrls("http://*:3002")
+             .UseUrls("http://*:23640")
             .UseKestrel()
                 .Build();
     }

@@ -24,7 +24,7 @@ namespace ik_word_management.Controllers
         }
 
         // GET api/values
-        [HttpGet, HttpPost]
+        [HttpGet,HttpHead]
         public string Get()
         {
             var modified = _modifiedService.GetLastModified();
@@ -32,7 +32,7 @@ namespace ik_word_management.Controllers
             var words = _wordService.GetAllEnableWordsName();
 
             HttpContext.Response.Headers.Add("Last-Modified", modified == null ? "null" : modified.Cdt.Value.ToString());
-            HttpContext.Response.Headers.Add("ETag", modified == null ? "null" : modified.Etag);
+            HttpContext.Response.Headers.Add("ETag", modified == null ? "null" : modified.Cdt.Value.ToString());
             string result = "";
             foreach (var item in words)
             {
