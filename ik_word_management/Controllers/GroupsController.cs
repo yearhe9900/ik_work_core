@@ -21,7 +21,7 @@ namespace ik_word_management.Controllers
     [Authorize]
     public class GroupsController : Controller
     {
-        private IKWordContext _iKWordContext = null;
+        private readonly IKWordContext _iKWordContext = null;
         private IGroupService _groupService = null;
 
         public GroupsController(IKWordContext iKWordContext, IGroupService groupService)

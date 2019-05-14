@@ -22,11 +22,13 @@ namespace ik_word_management.Helper
 
         public async Task<ResponseTokenOutputModel> GenerateEncodedToken(string userName, ClaimsIdentity identity, string refreshToken = null)
         {
+            var issuedAt = DateTime.UtcNow;
+
             var claims = new[]
          {
                  new Claim(JwtRegisteredClaimNames.Sub, userName),
                  new Claim(JwtRegisteredClaimNames.Jti, await _jwtOptions.JtiGenerator()),
-                 new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(_jwtOptions.IssuedAt).ToString(), ClaimValueTypes.Integer64),
+                 new Claim(JwtRegisteredClaimNames.Iat, ToUnixEpochDate(issuedAt).ToString(), ClaimValueTypes.Integer64),
                  identity.FindFirst(JwtClaimIdentifiers.Rol),
                  identity.FindFirst(JwtClaimIdentifiers.Id)
              };
@@ -35,8 +37,8 @@ namespace ik_word_management.Helper
                 issuer: _jwtOptions.Issuer,
                 audience: _jwtOptions.Audience,
                 claims: claims,
-                notBefore: _jwtOptions.NotBefore,
-                expires: _jwtOptions.Expiration,
+                notBefore: issuedAt,
+                expires: issuedAt.Add(_jwtOptions.ValidFor),
                 signingCredentials: _jwtOptions.SigningCredentials);
 
             var encodedJwt = new JwtSecurityTokenHandler().WriteToken(jwt);
