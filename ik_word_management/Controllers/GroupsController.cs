@@ -34,7 +34,7 @@ namespace ik_word_management.Controllers
         public IActionResult AddGroup([FromBody]RequestGroupInputModel model)
         {
             var result = _groupService.AddOneGroup(model.Name);
-
+          
             return new OkObjectResult(new ResponseResultBaseModel
             {
                 Code = result > 0 ? (int)CodeEnum.Success : (int)CodeEnum.Fail,
